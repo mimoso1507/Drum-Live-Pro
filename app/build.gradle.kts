@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.drummstch.deluxe"
+    namespace = "com.drummatch.deluxe"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.drummstch.deluxe"
+        applicationId = "com.drummatch.deluxe"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

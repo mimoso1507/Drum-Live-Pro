@@ -1,4 +1,4 @@
-package com.drummstch.deluxe.audio
+package com.drummatch.deluxe.audio
 
 import android.content.Context
 import android.net.Uri
@@ -10,7 +10,7 @@ class SoundFontManager(private val ctx: Context) {
     private val headers = HashMap<String, SoundFont>()
     private val loaded = HashMap<String, SoundFont>()
 
-    companion object { const val BUNDLED = "drummstch_kits.sf2" }
+    companion object { const val BUNDLED = "drummatch_kits.sf2" }
 
     fun ensureBundled() {
         val f = File(dir, BUNDLED)

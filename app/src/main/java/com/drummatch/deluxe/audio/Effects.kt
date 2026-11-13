@@ -1,4 +1,4 @@
-package com.drummstch.deluxe.audio
+package com.drummatch.deluxe.audio
 
 import kotlin.math.PI
 import kotlin.math.cos

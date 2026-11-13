@@ -1,4 +1,4 @@
-package com.drummstch.deluxe
+package com.drummatch.deluxe
 
 import android.app.Dialog
 import android.content.Context
@@ -10,32 +10,32 @@ import android.view.View
 import android.widget.GridLayout
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
-import com.drummstch.deluxe.model.Icon
-import com.drummstch.deluxe.model.Instruments
-import com.drummstch.deluxe.model.KIT_COLORS
-import com.drummstch.deluxe.model.Kit
-import com.drummstch.deluxe.model.PadConfig
-import com.drummstch.deluxe.model.SoundRef
-import com.drummstch.deluxe.ui.IconPainter
-import com.drummstch.deluxe.ui.Knob
-import com.drummstch.deluxe.ui.MATCH
-import com.drummstch.deluxe.ui.T
-import com.drummstch.deluxe.ui.WRAP
-import com.drummstch.deluxe.ui.button
-import com.drummstch.deluxe.ui.dp
-import com.drummstch.deluxe.ui.dpi
-import com.drummstch.deluxe.ui.gap
-import com.drummstch.deluxe.ui.hbox
-import com.drummstch.deluxe.ui.input
-import com.drummstch.deluxe.ui.label
-import com.drummstch.deluxe.ui.lp
-import com.drummstch.deluxe.ui.panelDialog
-import com.drummstch.deluxe.ui.rounded
-import com.drummstch.deluxe.ui.seek
-import com.drummstch.deluxe.ui.sliderRow
-import com.drummstch.deluxe.ui.switchRow
-import com.drummstch.deluxe.ui.toast
-import com.drummstch.deluxe.ui.vbox
+import com.drummatch.deluxe.model.Icon
+import com.drummatch.deluxe.model.Instruments
+import com.drummatch.deluxe.model.KIT_COLORS
+import com.drummatch.deluxe.model.Kit
+import com.drummatch.deluxe.model.PadConfig
+import com.drummatch.deluxe.model.SoundRef
+import com.drummatch.deluxe.ui.IconPainter
+import com.drummatch.deluxe.ui.Knob
+import com.drummatch.deluxe.ui.MATCH
+import com.drummatch.deluxe.ui.T
+import com.drummatch.deluxe.ui.WRAP
+import com.drummatch.deluxe.ui.button
+import com.drummatch.deluxe.ui.dp
+import com.drummatch.deluxe.ui.dpi
+import com.drummatch.deluxe.ui.gap
+import com.drummatch.deluxe.ui.hbox
+import com.drummatch.deluxe.ui.input
+import com.drummatch.deluxe.ui.label
+import com.drummatch.deluxe.ui.lp
+import com.drummatch.deluxe.ui.panelDialog
+import com.drummatch.deluxe.ui.rounded
+import com.drummatch.deluxe.ui.seek
+import com.drummatch.deluxe.ui.sliderRow
+import com.drummatch.deluxe.ui.switchRow
+import com.drummatch.deluxe.ui.toast
+import com.drummatch.deluxe.ui.vbox
 import kotlin.math.ln
 import kotlin.math.exp
 import kotlin.math.roundToInt
@@ -154,7 +154,7 @@ private class QuickNote(ctx: Context, val icon: Icon, val note: Int, val act: ()
 fun showKitEditor(a: MainActivity, existing: Kit?, isNew: Boolean = existing == null) {
     val base = a.kit
     val draft = existing ?: a.kits.newCustom("Mi batería", Icon.STAR, KIT_COLORS[0],
-        base?.source ?: SoundRef(com.drummstch.deluxe.audio.SoundFontManager.BUNDLED, 128, 0),
+        base?.source ?: SoundRef(com.drummatch.deluxe.audio.SoundFontManager.BUNDLED, 128, 0),
         PadConfig.defaults(12))
     val v = a.vbox(4)
     val nameIn = a.input("Nombre del kit", draft.name)

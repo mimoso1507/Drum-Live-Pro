@@ -1,4 +1,4 @@
-package com.drummstch.deluxe
+package com.drummatch.deluxe
 
 import android.Manifest
 import android.app.Activity
@@ -22,36 +22,36 @@ import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.drummstch.deluxe.audio.AudioEngine
-import com.drummstch.deluxe.audio.FxParams
-import com.drummstch.deluxe.audio.MAX_PADS
-import com.drummstch.deluxe.audio.PadSound
-import com.drummstch.deluxe.audio.SoundFontManager
-import com.drummstch.deluxe.midi.MidiInput
-import com.drummstch.deluxe.model.Kit
-import com.drummstch.deluxe.model.KitStore
-import com.drummstch.deluxe.model.PadConfig
-import com.drummstch.deluxe.model.RecordingStore
-import com.drummstch.deluxe.seq.Grid
-import com.drummstch.deluxe.seq.Meter
-import com.drummstch.deluxe.seq.PatternGen
-import com.drummstch.deluxe.ui.Glyph
-import com.drummstch.deluxe.ui.GlyphButton
-import com.drummstch.deluxe.ui.IconPainter
-import com.drummstch.deluxe.ui.PadGridView
-import com.drummstch.deluxe.ui.T
-import com.drummstch.deluxe.ui.VirtualKitView
-import com.drummstch.deluxe.ui.WRAP
-import com.drummstch.deluxe.ui.MATCH
-import com.drummstch.deluxe.ui.dp
-import com.drummstch.deluxe.ui.dpi
-import com.drummstch.deluxe.ui.fill
-import com.drummstch.deluxe.ui.hbox
-import com.drummstch.deluxe.ui.label
-import com.drummstch.deluxe.ui.lp
-import com.drummstch.deluxe.ui.toast
-import com.drummstch.deluxe.ui.rounded
-import com.drummstch.deluxe.ui.vbox
+import com.drummatch.deluxe.audio.AudioEngine
+import com.drummatch.deluxe.audio.FxParams
+import com.drummatch.deluxe.audio.MAX_PADS
+import com.drummatch.deluxe.audio.PadSound
+import com.drummatch.deluxe.audio.SoundFontManager
+import com.drummatch.deluxe.midi.MidiInput
+import com.drummatch.deluxe.model.Kit
+import com.drummatch.deluxe.model.KitStore
+import com.drummatch.deluxe.model.PadConfig
+import com.drummatch.deluxe.model.RecordingStore
+import com.drummatch.deluxe.seq.Grid
+import com.drummatch.deluxe.seq.Meter
+import com.drummatch.deluxe.seq.PatternGen
+import com.drummatch.deluxe.ui.Glyph
+import com.drummatch.deluxe.ui.GlyphButton
+import com.drummatch.deluxe.ui.IconPainter
+import com.drummatch.deluxe.ui.PadGridView
+import com.drummatch.deluxe.ui.T
+import com.drummatch.deluxe.ui.VirtualKitView
+import com.drummatch.deluxe.ui.WRAP
+import com.drummatch.deluxe.ui.MATCH
+import com.drummatch.deluxe.ui.dp
+import com.drummatch.deluxe.ui.dpi
+import com.drummatch.deluxe.ui.fill
+import com.drummatch.deluxe.ui.hbox
+import com.drummatch.deluxe.ui.label
+import com.drummatch.deluxe.ui.lp
+import com.drummatch.deluxe.ui.toast
+import com.drummatch.deluxe.ui.rounded
+import com.drummatch.deluxe.ui.vbox
 import org.json.JSONObject
 import java.util.concurrent.Executors
 
@@ -281,7 +281,7 @@ class MainActivity : Activity() {
         val k = kit ?: return
         if (k.pads.size + 4 > 32) { toast("Máximo 8 filas"); return }
         val used = k.pads.map { it.note }.toSet()
-        val candidates = com.drummstch.deluxe.model.Instruments.defaultLayout.filter { it !in used } + (27..87).filter { it !in used }
+        val candidates = com.drummatch.deluxe.model.Instruments.defaultLayout.filter { it !in used } + (27..87).filter { it !in used }
         repeat(4) { i -> k.pads += PadConfig(candidates.getOrElse(i) { 35 + i }) }
         applyPads(true)
     }

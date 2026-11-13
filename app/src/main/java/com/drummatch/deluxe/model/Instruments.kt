@@ -1,6 +1,6 @@
-package com.drummstch.deluxe.model
+package com.drummatch.deluxe.model
 
-/** Icon identifiers. Every instrument icon is drawn by [com.drummstch.deluxe.ui.IconPainter]. */
+/** Icon identifiers. Every instrument icon is drawn by [com.drummatch.deluxe.ui.IconPainter]. */
 enum class Icon(val label: String) {
     KICK("Bombo"), SNARE("Caja"), SNARE_ELEC("Caja electrónica"), SIDE_STICK("Aro / Side stick"),
     CLAP("Palmas"), SNAP("Chasquido"), HIHAT_CLOSED("Hi-hat cerrado"), HIHAT_OPEN("Hi-hat abierto"),

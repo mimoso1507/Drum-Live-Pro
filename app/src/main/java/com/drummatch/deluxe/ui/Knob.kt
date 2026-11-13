@@ -1,4 +1,4 @@
-package com.drummstch.deluxe.ui
+package com.drummatch.deluxe.ui
 
 import android.content.Context
 import android.graphics.Canvas

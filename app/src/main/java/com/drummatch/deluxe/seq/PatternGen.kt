@@ -1,6 +1,6 @@
-package com.drummstch.deluxe.seq
+package com.drummatch.deluxe.seq
 
-import com.drummstch.deluxe.model.Role
+import com.drummatch.deluxe.model.Role
 import kotlin.random.Random
 
 /**

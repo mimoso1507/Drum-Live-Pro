@@ -1,4 +1,4 @@
-# DrumMstch Deluxe
+# Drum Match Deluxe
 
 App de batería con pads para Android (nativa, Kotlin). Próximas versiones: Windows nativo y navegador.
 

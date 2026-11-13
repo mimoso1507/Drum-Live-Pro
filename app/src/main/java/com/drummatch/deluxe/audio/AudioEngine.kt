@@ -1,4 +1,4 @@
-package com.drummstch.deluxe.audio
+package com.drummatch.deluxe.audio
 
 import android.content.Context
 import android.media.AudioAttributes
@@ -6,10 +6,10 @@ import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
 import android.os.Process
-import com.drummstch.deluxe.seq.Grid
-import com.drummstch.deluxe.seq.Meter
-import com.drummstch.deluxe.seq.PPQ
-import com.drummstch.deluxe.seq.Quantizer
+import com.drummatch.deluxe.seq.Grid
+import com.drummatch.deluxe.seq.Meter
+import com.drummatch.deluxe.seq.PPQ
+import com.drummatch.deluxe.seq.Quantizer
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicLongArray
 import kotlin.math.PI

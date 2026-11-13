@@ -1,10 +1,10 @@
-package com.drummstch.deluxe.ui
+package com.drummatch.deluxe.ui
 
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
-import com.drummstch.deluxe.model.Icon
+import com.drummatch.deluxe.model.Icon
 import kotlin.math.cos
 import kotlin.math.sin
 

@@ -1,4 +1,4 @@
-package com.drummstch.deluxe.audio
+package com.drummatch.deluxe.audio
 
 import java.io.File
 import java.io.RandomAccessFile
