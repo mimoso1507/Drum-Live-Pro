@@ -1,4 +1,4 @@
-package com.drummatch.deluxe.seq
+package com.drumlivepro.app.seq
 
 import kotlin.math.roundToInt
 

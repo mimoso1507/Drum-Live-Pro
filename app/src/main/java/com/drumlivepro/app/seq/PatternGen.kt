@@ -1,6 +1,6 @@
-package com.drummatch.deluxe.seq
+package com.drumlivepro.app.seq
 
-import com.drummatch.deluxe.model.Role
+import com.drumlivepro.app.model.Role
 import kotlin.random.Random
 
 /**

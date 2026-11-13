@@ -1,4 +1,4 @@
-package com.drummatch.deluxe.ui
+package com.drumlivepro.app.ui
 
 import android.content.Context
 import android.graphics.Canvas
@@ -11,8 +11,8 @@ import android.os.Handler
 import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
-import com.drummatch.deluxe.model.PadConfig
-import com.drummatch.deluxe.seq.PatternGen
+import com.drumlivepro.app.model.PadConfig
+import com.drumlivepro.app.seq.PatternGen
 import java.util.concurrent.atomic.AtomicLongArray
 
 class PadGridView(ctx: Context) : View(ctx) {

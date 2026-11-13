@@ -1,4 +1,4 @@
-package com.drummatch.deluxe.midi
+package com.drumlivepro.app.midi
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice

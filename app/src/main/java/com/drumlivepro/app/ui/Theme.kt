@@ -1,4 +1,4 @@
-package com.drummatch.deluxe.ui
+package com.drumlivepro.app.ui
 
 import android.app.Dialog
 import android.content.Context
@@ -146,7 +146,7 @@ fun Context.panelDialog(title: String, content: View, scroll: Boolean = true, wi
 }
 
 /** Square-ish button that draws an icon/glyph instead of text. */
-class GlyphButton(ctx: Context, var glyph: Glyph? = null, var icon: com.drummatch.deluxe.model.Icon? = null, var text: String? = null) : View(ctx) {
+class GlyphButton(ctx: Context, var glyph: Glyph? = null, var icon: com.drumlivepro.app.model.Icon? = null, var text: String? = null) : View(ctx) {
     var selected2 = false; set(v) { field = v; invalidate() }
     var tint = T.TEXT; set(v) { field = v; invalidate() }
     var badge: Int? = null; set(v) { field = v; invalidate() }

@@ -4,15 +4,16 @@ plugins {
 }
 
 android {
-    namespace = "com.drummatch.deluxe"
+    namespace = "com.drumlivepro.app"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.drummatch.deluxe"
+        applicationId = "com.drumlivepro.app"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+        manifestPlaceholders["appLabel"] = "Drum Live Pro v$versionName"
     }
 
     buildTypes {

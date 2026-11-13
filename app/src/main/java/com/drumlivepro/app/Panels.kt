@@ -1,4 +1,4 @@
-package com.drummatch.deluxe
+package com.drumlivepro.app
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -9,34 +9,34 @@ import android.view.Gravity
 import android.view.View
 import android.widget.GridLayout
 import android.widget.ScrollView
-import com.drummatch.deluxe.audio.FxParams
-import com.drummatch.deluxe.audio.SoundFontManager
-import com.drummatch.deluxe.audio.WavExporter
-import com.drummatch.deluxe.model.Instruments
-import com.drummatch.deluxe.model.Kit
-import com.drummatch.deluxe.model.Recording
-import com.drummatch.deluxe.seq.Grid
-import com.drummatch.deluxe.seq.Meter
-import com.drummatch.deluxe.ui.IconPainter
-import com.drummatch.deluxe.ui.MATCH
-import com.drummatch.deluxe.ui.T
-import com.drummatch.deluxe.ui.WRAP
-import com.drummatch.deluxe.ui.button
-import com.drummatch.deluxe.ui.dp
-import com.drummatch.deluxe.ui.dpi
-import com.drummatch.deluxe.ui.gap
-import com.drummatch.deluxe.ui.hbox
-import com.drummatch.deluxe.ui.input
-import com.drummatch.deluxe.ui.label
-import com.drummatch.deluxe.ui.lp
-import com.drummatch.deluxe.ui.panelDialog
-import com.drummatch.deluxe.ui.rounded
-import com.drummatch.deluxe.ui.seek
-import com.drummatch.deluxe.ui.sliderRow
-import com.drummatch.deluxe.ui.styleSelected
-import com.drummatch.deluxe.ui.switchRow
-import com.drummatch.deluxe.ui.toast
-import com.drummatch.deluxe.ui.vbox
+import com.drumlivepro.app.audio.FxParams
+import com.drumlivepro.app.audio.SoundFontManager
+import com.drumlivepro.app.audio.WavExporter
+import com.drumlivepro.app.model.Instruments
+import com.drumlivepro.app.model.Kit
+import com.drumlivepro.app.model.Recording
+import com.drumlivepro.app.seq.Grid
+import com.drumlivepro.app.seq.Meter
+import com.drumlivepro.app.ui.IconPainter
+import com.drumlivepro.app.ui.MATCH
+import com.drumlivepro.app.ui.T
+import com.drumlivepro.app.ui.WRAP
+import com.drumlivepro.app.ui.button
+import com.drumlivepro.app.ui.dp
+import com.drumlivepro.app.ui.dpi
+import com.drumlivepro.app.ui.gap
+import com.drumlivepro.app.ui.hbox
+import com.drumlivepro.app.ui.input
+import com.drumlivepro.app.ui.label
+import com.drumlivepro.app.ui.lp
+import com.drumlivepro.app.ui.panelDialog
+import com.drumlivepro.app.ui.rounded
+import com.drumlivepro.app.ui.seek
+import com.drumlivepro.app.ui.sliderRow
+import com.drumlivepro.app.ui.styleSelected
+import com.drumlivepro.app.ui.switchRow
+import com.drumlivepro.app.ui.toast
+import com.drumlivepro.app.ui.vbox
 import kotlin.math.roundToInt
 
 private fun Context.scrollOf(v: View) = ScrollView(this).apply { addView(v); isFillViewport = true }
@@ -90,7 +90,7 @@ class KitCard(ctx: Context, val kit: Kit?, val sel: Boolean) : View(ctx) {
         p.style = Paint.Style.STROKE; p.strokeWidth = dp(if (sel) 2.6f else 1.5f); p.color = if (sel) T.CYAN else T.BORDER
         c.drawRoundRect(dp(3f), dp(3f), width - dp(3f), height - dp(3f), r, r, p)
         if (kit == null) {
-            IconPainter.glyph(c, com.drummatch.deluxe.ui.Glyph.PLUS, width / 2f, height * 0.42f, width * 0.4f, T.CYAN)
+            IconPainter.glyph(c, com.drumlivepro.app.ui.Glyph.PLUS, width / 2f, height * 0.42f, width * 0.4f, T.CYAN)
             tp.color = T.TEXT; tp.textSize = dp(12.5f); c.drawText("Nuevo kit", width / 2f, height - dp(14f), tp); return
         }
         p.style = Paint.Style.FILL; p.color = (kit.color and 0x00FFFFFF) or 0x33000000
@@ -248,7 +248,7 @@ fun buildRecPanel(a: MainActivity): View {
 
 private fun currentRecording(a: MainActivity, name: String): Recording {
     val c = a.engine.core
-    val ev = synchronized(c.loopLock) { c.loop.map { com.drummatch.deluxe.audio.NoteEvent(it.tick, it.pad, it.note, it.vel) } }
+    val ev = synchronized(c.loopLock) { c.loop.map { com.drumlivepro.app.audio.NoteEvent(it.tick, it.pad, it.note, it.vel) } }
     return Recording(name, c.bpm, c.meter, c.loopBars, a.kit?.id, ev, System.currentTimeMillis())
 }
 
@@ -264,7 +264,7 @@ private fun saveRecordingDialog(a: MainActivity) {
 private fun loadRecording(a: MainActivity, r: Recording) {
     val c = a.engine.core
     c.bpm = r.bpm; c.meter = r.meter; c.loopBars = r.bars
-    synchronized(c.loopLock) { c.loop.clear(); r.events.forEach { c.loop.add(com.drummatch.deluxe.audio.NoteEvent(it.tick, it.pad, it.note, it.vel)) }; c.loop.sortBy { it.tick } }
+    synchronized(c.loopLock) { c.loop.clear(); r.events.forEach { c.loop.add(com.drumlivepro.app.audio.NoteEvent(it.tick, it.pad, it.note, it.vel)) }; c.loop.sortBy { it.tick } }
     r.kitId?.let { id -> if (id != a.kit?.id) a.kits.load(id)?.let { a.selectKit(it) } }
     a.regenPatterns(); a.saveSettings()
     if (!c.running) a.startTransport(false)
@@ -289,7 +289,7 @@ private fun exportWav(a: MainActivity) {
         f.echoOn = s.echoOn; f.echoDelay = s.echoDelay; f.echoFeedback = s.echoFeedback; f.echoMix = s.echoMix; f.master = s.master
     }
     a.bg.execute {
-        val fn = "DrumMatch_${System.currentTimeMillis() / 1000}.wav"
+        val fn = "DrumLivePro_${System.currentTimeMillis() / 1000}.wav"
         val r = runCatching { a.recs.exportPublic(fn, "audio/wav") { WavExporter.render(c, fxCopy, 4, it.buffered()) ; } }
         a.main.post { r.onSuccess { a.toast("WAV exportado en $it") }.onFailure { a.toast("Error: ${it.message}") } }
     }
@@ -352,7 +352,7 @@ fun buildMorePanel(a: MainActivity): View {
     }, lp(WRAP, WRAP).apply { topMargin = a.dpi(6) })
     box.addView(a.section("Información"))
     box.addView(a.label("Latencia de salida aprox.: ${a.engine.latencyMs} ms · ${a.engine.sampleRate} Hz", 13.5f, T.TEXT2))
-    box.addView(a.label("Drum Match Deluxe 1.0 · Kits incluidos basados en GeneralUser GS v2 de S. Christian Collins (uso libre).", 13f, T.TEXT2))
+    box.addView(a.label("${a.appTitle} · Kits incluidos basados en GeneralUser GS v2 de S. Christian Collins (uso libre).", 13f, T.TEXT2))
     return a.scrollOf(box)
 }
 

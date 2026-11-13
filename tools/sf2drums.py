@@ -79,7 +79,7 @@ def main(src, dst, listonly=False):
     mod = b'\0'*10
     def ck(i, b): return i.encode()+struct.pack('<I',len(b))+b+(b'\0' if len(b)&1 else b'')
     def lst(t, body): return ck('LIST', t.encode()+body)
-    info = ck('ifil', struct.pack('<HH',2,1)) + ck('isng', b'EMU8000\0') + ck('INAM', b'DrumMatch Kits (GeneralUser GS)\0\0') + ck('ICMT', b'Drum kits extracted from GeneralUser GS v2 by S. Christian Collins\0\0')
+    info = ck('ifil', struct.pack('<HH',2,1)) + ck('isng', b'EMU8000\0') + ck('INAM', b'DrumLive Kits (GeneralUser GS)\0\0') + ck('ICMT', b'Drum kits extracted from GeneralUser GS v2 by S. Christian Collins\0\0')
     sdta = ck('smpl', bytes(newsmpl))
     pdta = ck('phdr',nphdr)+ck('pbag',npbag)+ck('pmod',mod)+ck('pgen',npgen)+ck('inst',ninst)+ck('ibag',nibag)+ck('imod',mod)+ck('igen',nigen)+ck('shdr',b''.join(newshdr))
     body = b'sfbk' + lst('INFO',info) + lst('sdta',sdta) + lst('pdta',pdta)

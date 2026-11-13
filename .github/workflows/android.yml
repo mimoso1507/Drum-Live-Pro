@@ -25,17 +25,17 @@ jobs:
           chmod +x gradlew
           ./gradlew --no-daemon assembleDebug
           mkdir -p out
-          cp app/build/outputs/apk/debug/app-debug.apk out/DrumMatch-Deluxe.apk
+          cp app/build/outputs/apk/debug/app-debug.apk out/Drum-Live-Pro.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: DrumMatch-Deluxe-apk
-          path: out/DrumMatch-Deluxe.apk
+          name: Drum-Live-Pro-apk
+          path: out/Drum-Live-Pro.apk
       - name: Publish "latest" release
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: Drum Match Deluxe (última versión)
+          name: Drum Live Pro (última versión)
           prerelease: true
-          files: out/DrumMatch-Deluxe.apk
+          files: out/Drum-Live-Pro.apk
           body: APK de prueba generado automáticamente desde main. Instálalo en Android 8.0 o superior.

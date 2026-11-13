@@ -1,4 +1,4 @@
-package com.drummatch.deluxe.ui
+package com.drumlivepro.app.ui
 
 import android.content.Context
 import android.graphics.Canvas
@@ -8,8 +8,8 @@ import android.graphics.Shader
 import android.graphics.Typeface
 import android.view.MotionEvent
 import android.view.View
-import com.drummatch.deluxe.model.PadConfig
-import com.drummatch.deluxe.model.Role
+import com.drumlivepro.app.model.PadConfig
+import com.drumlivepro.app.model.Role
 import java.util.concurrent.atomic.AtomicLongArray
 import kotlin.math.cos
 import kotlin.math.hypot

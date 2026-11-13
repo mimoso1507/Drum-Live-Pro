@@ -1,13 +1,13 @@
-package com.drummatch.deluxe.model
+package com.drumlivepro.app.model
 
 import android.content.ContentValues
 import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import com.drummatch.deluxe.audio.NoteEvent
-import com.drummatch.deluxe.seq.Meter
-import com.drummatch.deluxe.seq.PPQ
+import com.drumlivepro.app.audio.NoteEvent
+import com.drumlivepro.app.seq.Meter
+import com.drumlivepro.app.seq.PPQ
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
@@ -41,17 +41,17 @@ class RecordingStore(private val ctx: Context) {
     fun delete(r: Recording) = file(r.name).delete()
     fun exists(name: String) = file(name).exists()
 
-    /** Writes a file to the public Downloads/DrumMatch folder (or app folder on old Android). Returns a readable location. */
+    /** Writes a file to the public Downloads/DrumLivePro folder (or app folder on old Android). Returns a readable location. */
     fun exportPublic(fileName: String, mime: String, write: (OutputStream) -> Unit): String {
         if (Build.VERSION.SDK_INT >= 29) {
             val values = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
                 put(MediaStore.MediaColumns.MIME_TYPE, mime)
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/DrumMatch")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/DrumLivePro")
             }
             val uri = ctx.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values) ?: error("No se pudo crear el archivo")
             ctx.contentResolver.openOutputStream(uri)!!.use(write)
-            return "Descargas/DrumMatch/$fileName"
+            return "Descargas/DrumLivePro/$fileName"
         }
         val d = File(ctx.getExternalFilesDir(null), "export").apply { mkdirs() }
         val f = File(d, fileName)

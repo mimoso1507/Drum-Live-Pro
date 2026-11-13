@@ -1,4 +1,4 @@
-package com.drummatch.deluxe
+package com.drumlivepro.app
 
 import android.Manifest
 import android.app.Activity
@@ -22,40 +22,43 @@ import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.drummatch.deluxe.audio.AudioEngine
-import com.drummatch.deluxe.audio.FxParams
-import com.drummatch.deluxe.audio.MAX_PADS
-import com.drummatch.deluxe.audio.PadSound
-import com.drummatch.deluxe.audio.SoundFontManager
-import com.drummatch.deluxe.midi.MidiInput
-import com.drummatch.deluxe.model.Kit
-import com.drummatch.deluxe.model.KitStore
-import com.drummatch.deluxe.model.PadConfig
-import com.drummatch.deluxe.model.RecordingStore
-import com.drummatch.deluxe.seq.Grid
-import com.drummatch.deluxe.seq.Meter
-import com.drummatch.deluxe.seq.PatternGen
-import com.drummatch.deluxe.ui.Glyph
-import com.drummatch.deluxe.ui.GlyphButton
-import com.drummatch.deluxe.ui.IconPainter
-import com.drummatch.deluxe.ui.PadGridView
-import com.drummatch.deluxe.ui.T
-import com.drummatch.deluxe.ui.VirtualKitView
-import com.drummatch.deluxe.ui.WRAP
-import com.drummatch.deluxe.ui.MATCH
-import com.drummatch.deluxe.ui.dp
-import com.drummatch.deluxe.ui.dpi
-import com.drummatch.deluxe.ui.fill
-import com.drummatch.deluxe.ui.hbox
-import com.drummatch.deluxe.ui.label
-import com.drummatch.deluxe.ui.lp
-import com.drummatch.deluxe.ui.toast
-import com.drummatch.deluxe.ui.rounded
-import com.drummatch.deluxe.ui.vbox
+import com.drumlivepro.app.audio.AudioEngine
+import com.drumlivepro.app.audio.FxParams
+import com.drumlivepro.app.audio.MAX_PADS
+import com.drumlivepro.app.audio.PadSound
+import com.drumlivepro.app.audio.SoundFontManager
+import com.drumlivepro.app.midi.MidiInput
+import com.drumlivepro.app.model.Kit
+import com.drumlivepro.app.model.KitStore
+import com.drumlivepro.app.model.PadConfig
+import com.drumlivepro.app.model.RecordingStore
+import com.drumlivepro.app.seq.Grid
+import com.drumlivepro.app.seq.Meter
+import com.drumlivepro.app.seq.PatternGen
+import com.drumlivepro.app.ui.Glyph
+import com.drumlivepro.app.ui.GlyphButton
+import com.drumlivepro.app.ui.IconPainter
+import com.drumlivepro.app.ui.PadGridView
+import com.drumlivepro.app.ui.T
+import com.drumlivepro.app.ui.VirtualKitView
+import com.drumlivepro.app.ui.WRAP
+import com.drumlivepro.app.ui.MATCH
+import com.drumlivepro.app.ui.dp
+import com.drumlivepro.app.ui.dpi
+import com.drumlivepro.app.ui.fill
+import com.drumlivepro.app.ui.hbox
+import com.drumlivepro.app.ui.label
+import com.drumlivepro.app.ui.lp
+import com.drumlivepro.app.ui.toast
+import com.drumlivepro.app.ui.rounded
+import com.drumlivepro.app.ui.vbox
 import org.json.JSONObject
 import java.util.concurrent.Executors
 
 class MainActivity : Activity() {
+    val versionName: String by lazy { runCatching { packageManager.getPackageInfo(packageName, 0).versionName }.getOrNull() ?: "1.0" }
+    val appTitle get() = "Drum Live Pro v$versionName"
+
     lateinit var prefs: SharedPreferences
     val fx = FxParams()
     lateinit var engine: AudioEngine
@@ -281,7 +284,7 @@ class MainActivity : Activity() {
         val k = kit ?: return
         if (k.pads.size + 4 > 32) { toast("Máximo 8 filas"); return }
         val used = k.pads.map { it.note }.toSet()
-        val candidates = com.drummatch.deluxe.model.Instruments.defaultLayout.filter { it !in used } + (27..87).filter { it !in used }
+        val candidates = com.drumlivepro.app.model.Instruments.defaultLayout.filter { it !in used } + (27..87).filter { it !in used }
         repeat(4) { i -> k.pads += PadConfig(candidates.getOrElse(i) { 35 + i }) }
         applyPads(true)
     }
@@ -422,7 +425,7 @@ class MainActivity : Activity() {
     fun updateStatus() {
         val names = midi.connectedNames
         val k = kit?.name ?: "—"
-        status.text = if (names.isEmpty()) "Kit: $k" else "Kit: $k   ·   MIDI conectado: ${names.joinToString()}"
+        status.text = if (names.isEmpty()) "$appTitle   ·   Kit: $k" else "$appTitle   ·   Kit: $k   ·   MIDI conectado: ${names.joinToString()}"
         btnMidi.badge = if (names.isEmpty()) null else T.MINT
     }
 

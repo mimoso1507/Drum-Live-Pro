@@ -1,7 +1,7 @@
-package com.drummatch.deluxe.model
+package com.drumlivepro.app.model
 
 import android.content.Context
-import com.drummatch.deluxe.audio.SoundFontManager
+import com.drumlivepro.app.audio.SoundFontManager
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
