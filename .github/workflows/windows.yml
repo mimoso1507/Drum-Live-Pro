@@ -1,0 +1,78 @@
+name: Windows EXE
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-2022
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Read version
+        id: ver
+        run: echo "ver=$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts)" >> "$GITHUB_OUTPUT"
+      - name: Build app (Kotlin/JVM)
+        run: ./gradlew --no-daemon -p desktop installDist
+      - name: Package portable app (jpackage app-image)
+        run: |
+          V=${{ steps.ver.outputs.ver }}
+          COMMON=(--input desktop/build/install/DrumLivePro/lib --main-jar drumlivepro.jar
+                  --main-class com.drumlivepro.desk.MainKt --name "Drum Live Pro" --app-version "$V"
+                  --vendor "Drum Live Pro" --description "Drum Live Pro v$V"
+                  --icon desktop/packaging/drumlivepro.ico
+                  --add-modules java.base,java.desktop,java.logging
+                  --java-options "-Xmx1g" --java-options "-Dsun.java2d.d3d=true")
+          jpackage --type app-image --dest build-win "${COMMON[@]}"
+          mkdir -p out
+          (cd build-win && 7z a -tzip "../out/Drum-Live-Pro-v$V-Windows-portable.zip" "Drum Live Pro" > /dev/null)
+      - name: Package installer (jpackage exe)
+        run: |
+          V=${{ steps.ver.outputs.ver }}
+          WIX="/c/Program Files (x86)/WiX Toolset v3.14/bin"
+          if [ ! -x "$WIX/candle.exe" ]; then choco install wixtoolset --version 3.14.1 -y --no-progress; fi
+          export PATH="$WIX:$PATH"
+          jpackage --type exe --dest build-exe \
+            --input desktop/build/install/DrumLivePro/lib --main-jar drumlivepro.jar \
+            --main-class com.drumlivepro.desk.MainKt --name "Drum Live Pro" --app-version "$V" \
+            --vendor "Drum Live Pro" --description "Drum Live Pro v$V" \
+            --icon desktop/packaging/drumlivepro.ico \
+            --add-modules java.base,java.desktop,java.logging \
+            --java-options "-Xmx1g" --java-options "-Dsun.java2d.d3d=true" \
+            --win-per-user-install --win-menu --win-menu-group "Drum Live Pro" --win-shortcut --win-dir-chooser \
+            --win-upgrade-uuid 5d1c7a8e-3b5f-4e6a-9c1d-7f2b8a4e6c10
+          cp build-exe/*.exe "out/Drum-Live-Pro-v$V-Windows-Setup.exe"
+          ls -la out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Drum-Live-Pro-v${{ steps.ver.outputs.ver }}-Windows
+          path: out/*
+      - name: Publish Windows release for this version
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: windows-v${{ steps.ver.outputs.ver }}
+          name: Drum Live Pro v${{ steps.ver.outputs.ver }} para Windows
+          make_latest: false
+          files: out/*
+          body: |
+            Drum Live Pro v${{ steps.ver.outputs.ver }} para Windows 10/11 (64 bits), generado automáticamente.
+
+            - **Drum-Live-Pro-v${{ steps.ver.outputs.ver }}-Windows-Setup.exe**: instalador (no pide permisos de administrador; crea acceso directo en el escritorio y en el menú Inicio).
+            - **Drum-Live-Pro-v${{ steps.ver.outputs.ver }}-Windows-portable.zip**: sin instalar; descomprime y abre `Drum Live Pro.exe`.
+
+            Se abre a pantalla completa en horizontal. **ESC** sale de pantalla completa y **F11** vuelve.
+            Como el instalador no está firmado, Windows SmartScreen puede avisar: pulsa «Más información» → «Ejecutar de todas formas».
