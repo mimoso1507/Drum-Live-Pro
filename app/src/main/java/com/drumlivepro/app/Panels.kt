@@ -20,6 +20,7 @@ import com.drumlivepro.app.seq.Meter
 import com.drumlivepro.app.ui.IconPainter
 import com.drumlivepro.app.ui.MATCH
 import com.drumlivepro.app.ui.T
+import com.drumlivepro.app.ui.THEMES
 import com.drumlivepro.app.ui.WRAP
 import com.drumlivepro.app.ui.button
 import com.drumlivepro.app.ui.dp
@@ -333,6 +334,9 @@ fun buildMidiPanel(a: MainActivity): View {
 // ---------------- MORE ----------------
 fun buildMorePanel(a: MainActivity): View {
     val box = a.vbox(12)
+    box.addView(a.section("Tema de color"))
+    box.addView(a.label("Elige entre 8 temas; el último es el azul original.", 12.5f, T.TEXT2))
+    box.addView(a.chips(THEMES.indices.toList(), T.index, { THEMES[it].name }) { a.applyColorTheme(it) })
     box.addView(a.section("Sonido"))
     box.addView(a.sliderRow("Volumen general", 100, (a.fx.master * 100).toInt(), { "$it%" }) { a.fx.master = it / 100f; a.saveSettings() })
     box.addView(a.switchRow("Reverb", a.fx.revOn) { a.fx.revOn = it; a.saveSettings() })

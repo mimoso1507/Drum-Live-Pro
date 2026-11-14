@@ -64,7 +64,7 @@ class PadGridView(ctx: Context) : View(ctx) {
             val r = dp(14f)
             // body
             paint.style = Paint.Style.FILL
-            paint.shader = LinearGradient(0f, rect.top, 0f, rect.bottom, blend(0xFF10133F.toInt(), T.PAD_HIT, flash), blend(T.PAD, 0xFF0E2E9E.toInt(), flash), Shader.TileMode.CLAMP)
+            paint.shader = LinearGradient(0f, rect.top, 0f, rect.bottom, blend(T.PAD_TOP, T.PAD_HIT, flash), blend(T.PAD, T.PAD_HIT, flash * 0.7f), Shader.TileMode.CLAMP)
             c.drawRoundRect(rect, r, r, paint)
             paint.shader = null
             // border
@@ -92,7 +92,7 @@ class PadGridView(ctx: Context) : View(ctx) {
                 val x0 = rect.centerX() - sp * (n - 1) / 2; val y = rect.top + dp(10f)
                 for (k in 0 until n) {
                     paint.style = Paint.Style.FILL
-                    paint.color = if (k < pad.autoLevel) T.MINT else 0xFF1E3A2E.toInt()
+                    paint.color = if (k < pad.autoLevel) T.MINT else T.DOT_OFF
                     c.drawCircle(x0 + k * sp, y, dr, paint)
                 }
             }

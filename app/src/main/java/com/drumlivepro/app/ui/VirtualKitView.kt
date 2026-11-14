@@ -82,7 +82,7 @@ class VirtualKitView(ctx: Context) : View(ctx) {
     }
 
     override fun onDraw(c: Canvas) {
-        paint.shader = RadialGradient(width / 2f, height * 0.55f, maxOf(width, height) * 0.7f, 0xFF1A2370.toInt(), T.BG_DEEP, Shader.TileMode.CLAMP)
+        paint.shader = RadialGradient(width / 2f, height * 0.55f, maxOf(width, height) * 0.7f, T.KIT_BG, T.BG_DEEP, Shader.TileMode.CLAMP)
         paint.style = Paint.Style.FILL
         c.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
         paint.shader = null
@@ -154,7 +154,7 @@ class VirtualKitView(ctx: Context) : View(ctx) {
     private fun drawPerc(c: Canvas, p: Piece, r: Float, f: Float) {
         paint.style = Paint.Style.FILL
         paint.color = 0x55000000; c.drawCircle(p.x + 4, p.y + 6, r, paint)
-        paint.color = if (f > 0) T.PAD_HIT else 0xFF0A0D33.toInt(); c.drawCircle(p.x, p.y, r, paint)
+        paint.color = if (f > 0) T.PAD_HIT else T.PAD; c.drawCircle(p.x, p.y, r, paint)
         paint.style = Paint.Style.STROKE; paint.strokeWidth = 3f; paint.color = if (f > 0) T.CYAN else T.BORDER
         c.drawCircle(p.x, p.y, r, paint)
         val pad = pads.getOrNull(p.pad) ?: return

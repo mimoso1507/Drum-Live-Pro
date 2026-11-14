@@ -104,9 +104,10 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        prefs = getSharedPreferences("settings", MODE_PRIVATE)
+        T.apply(prefs.getInt("theme", 0))
         window.statusBarColor = T.BG_DEEP
         window.navigationBarColor = T.BG_DEEP
-        prefs = getSharedPreferences("settings", MODE_PRIVATE)
         sfm = SoundFontManager(this)
         kits = KitStore(this, sfm)
         recs = RecordingStore(this)
@@ -222,6 +223,18 @@ class MainActivity : Activity() {
         showTab(Tab.PADS)
         refreshTop()
         return root
+    }
+
+    /** Applies one of the 8 color themes and rebuilds the screen. */
+    fun applyColorTheme(i: Int) {
+        prefs.edit().putInt("theme", i).apply()
+        T.apply(i)
+        window.statusBarColor = T.BG_DEEP
+        window.navigationBarColor = T.BG_DEEP
+        navItems.clear()
+        setContentView(buildRoot())
+        updateStatus()
+        showTab(Tab.MORE)
     }
 
     fun showTab(t: Tab) {
@@ -491,7 +504,7 @@ class MainActivity : Activity() {
         private val p = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER; typeface = Typeface.create(Typeface.SERIF, Typeface.NORMAL) }
         init { isClickable = true }
         override fun onDraw(c: Canvas) {
-            if (isOn) { p.color = 0xFF0B1B6E.toInt(); c.drawRoundRect(dp(4f), dp(3f), width - dp(4f), height - dp(3f), dp(16f), dp(16f), p) }
+            if (isOn) { p.color = T.NAV_SEL; c.drawRoundRect(dp(4f), dp(3f), width - dp(4f), height - dp(3f), dp(16f), dp(16f), p) }
             val col = if (isOn) T.CYAN else T.TEXT2
             IconPainter.glyph(c, tab.glyph, width / 2f, height * 0.38f, height * 0.42f, col)
             p.color = col; p.textSize = dp(11.5f)

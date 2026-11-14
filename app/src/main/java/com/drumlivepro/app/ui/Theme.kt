@@ -25,22 +25,44 @@ import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 
-/** Colors taken from the user's reference screenshot (royal navy + cyan + mint). */
+/** One color theme for the whole interface. */
+class Palette(
+    val name: String, val bg: Int, val bgDeep: Int, val btn: Int, val btnSel: Int, val border: Int,
+    val accent: Int, val mint: Int, val text2: Int, val pad: Int, val padTop: Int, val padHit: Int,
+    val navSel: Int, val kitBg: Int, val dotOff: Int,
+)
+
+private fun c(v: Long) = v.toInt()
+
+/** 8 themes: 7 soft ones and, last, the original bright royal blue. */
+val THEMES = listOf(
+    Palette("Grafito", c(0xFF1C1F26), c(0xFF14161B), c(0xFF262A33), c(0xFF34404F), c(0xFF5C6370), c(0xFF8DB8D8), c(0xFF8FC9A3), c(0xFFA3A9B4), c(0xFF20242B), c(0xFF2A2F38), c(0xFF3E5870), c(0xFF2C3440), c(0xFF2A303A), c(0xFF27342C)),
+    Palette("Noche suave", c(0xFF1A2236), c(0xFF121828), c(0xFF222C45), c(0xFF2D3D62), c(0xFF56627E), c(0xFF8AB4F8), c(0xFF81C995), c(0xFFA5AECB), c(0xFF1C2439), c(0xFF26304A), c(0xFF34508A), c(0xFF283556), c(0xFF26304C), c(0xFF22362C)),
+    Palette("Bosque", c(0xFF1B2620), c(0xFF131B16), c(0xFF23302A), c(0xFF2F4438), c(0xFF5B6E62), c(0xFF9FD0A2), c(0xFFD4E3A0), c(0xFFA7B8AC), c(0xFF1E2A23), c(0xFF27362D), c(0xFF3D6650), c(0xFF2A3D32), c(0xFF26352C), c(0xFF2C3A2A)),
+    Palette("Océano", c(0xFF142629), c(0xFF0D1C1E), c(0xFF1B3337), c(0xFF22494E), c(0xFF4F6F72), c(0xFF72C7C7), c(0xFFA3D9B1), c(0xFF9DB8BA), c(0xFF17292C), c(0xFF1F363A), c(0xFF2C6168), c(0xFF1F4247), c(0xFF1E3538), c(0xFF1F3A30)),
+    Palette("Lavanda", c(0xFF221F2E), c(0xFF181621), c(0xFF2C2840), c(0xFF3C3558), c(0xFF6A6385), c(0xFFB9A6E8), c(0xFF9ED9C6), c(0xFFADA7C4), c(0xFF242132), c(0xFF2F2A42), c(0xFF4E4278), c(0xFF372F50), c(0xFF2E2A40), c(0xFF283A36)),
+    Palette("Vino", c(0xFF2A1C22), c(0xFF1E1418), c(0xFF36242C), c(0xFF4B2F3C), c(0xFF7A5F69), c(0xFFE3A6B8), c(0xFFF0C9A0), c(0xFFC0A6AF), c(0xFF2C1E24), c(0xFF3A2830), c(0xFF6A3A4E), c(0xFF452B37), c(0xFF3A2830), c(0xFF3A3024)),
+    Palette("Arena", c(0xFF2A2620), c(0xFF1E1B16), c(0xFF36312A), c(0xFF4A4135), c(0xFF7D7262), c(0xFFE6C47F), c(0xFFB9D08F), c(0xFFC2B8A6), c(0xFF2D2822), c(0xFF3A342B), c(0xFF6B5A38), c(0xFF443C30), c(0xFF3A342B), c(0xFF34382A)),
+    Palette("Azul real (original)", c(0xFF00007A), c(0xFF000052), c(0xFF05061C), c(0xFF0B2A9A), c(0xFFA4A6C2), c(0xFF33D6F7), c(0xFF5BE3A2), c(0xFFBFC2E6), c(0xFF080A2E), c(0xFF10133F), c(0xFF1B4FD8), c(0xFF0B1B6E), c(0xFF1A2370), c(0xFF1E3A2E)),
+)
+
+/** Current theme colors (set with [T.apply]). */
 object T {
-    const val BG = 0xFF00007A.toInt()
-    const val BG_DEEP = 0xFF000052.toInt()
-    const val PANEL = 0xFF00006A.toInt()
-    const val BTN = 0xFF05061C.toInt()
-    const val BTN_SEL = 0xFF0B2A9A.toInt()
-    const val BORDER = 0xFFA4A6C2.toInt()
-    const val CYAN = 0xFF33D6F7.toInt()
-    const val MINT = 0xFF5BE3A2.toInt()
+    var BG = 0; var BG_DEEP = 0; var PANEL = 0; var BTN = 0; var BTN_SEL = 0; var BORDER = 0
+    var CYAN = 0; var MINT = 0; var TEXT2 = 0; var PAD = 0; var PAD_TOP = 0; var PAD_HIT = 0
+    var NAV_SEL = 0; var KIT_BG = 0; var DOT_OFF = 0
     const val TEXT = Color.WHITE
-    const val TEXT2 = 0xFFBFC2E6.toInt()
     const val RED = 0xFFFF4D5E.toInt()
-    const val PAD = 0xFF080A2E.toInt()
-    const val PAD_HIT = 0xFF1B4FD8.toInt()
     const val GOLD = 0xFFE8B84A.toInt()
+    var index = 0; private set
+    init { apply(0) }
+    fun apply(i: Int) {
+        index = i.coerceIn(0, THEMES.size - 1)
+        val p = THEMES[index]
+        BG = p.bg; BG_DEEP = p.bgDeep; PANEL = p.bg; BTN = p.btn; BTN_SEL = p.btnSel; BORDER = p.border
+        CYAN = p.accent; MINT = p.mint; TEXT2 = p.text2; PAD = p.pad; PAD_TOP = p.padTop; PAD_HIT = p.padHit
+        NAV_SEL = p.navSel; KIT_BG = p.kitBg; DOT_OFF = p.dotOff
+    }
 }
 
 fun Context.dp(v: Float): Float = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v, resources.displayMetrics)
@@ -110,7 +132,7 @@ fun Context.switchRow(name: String, on: Boolean, onChange: (Boolean) -> Unit) = 
     addView(Switch(context).apply {
         isChecked = on
         thumbTintList = ColorStateList(arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()), intArrayOf(T.CYAN, T.BORDER))
-        trackTintList = ColorStateList(arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()), intArrayOf(0x8833D6F7.toInt(), 0x66A4A6C2))
+        trackTintList = ColorStateList(arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()), intArrayOf((T.CYAN and 0xFFFFFF) or 0x88000000.toInt(), (T.BORDER and 0xFFFFFF) or 0x66000000))
         setOnCheckedChangeListener { _, b -> onChange(b) }
     })
 }
