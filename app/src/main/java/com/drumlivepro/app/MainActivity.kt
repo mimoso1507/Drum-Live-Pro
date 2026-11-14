@@ -92,14 +92,14 @@ class MainActivity : Activity() {
     lateinit var kitView: VirtualKitView
     private lateinit var content: FrameLayout
     private lateinit var display: TextView
-    private lateinit var status: TextView
+    private lateinit var btnBack: GlyphButton
+    var statusText = ""
     private lateinit var btnAuto: GlyphButton
     private lateinit var btnMetro: GlyphButton
     private lateinit var btnRec: GlyphButton
     private lateinit var btnPlay: GlyphButton
     private lateinit var btnLearn: GlyphButton
     private lateinit var btnMidi: GlyphButton
-    private val navItems = ArrayList<NavItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -192,6 +192,7 @@ class MainActivity : Activity() {
         val top = hbox(6)
         fun gb(g: Glyph? = null, text: String? = null, act: (GlyphButton) -> Unit): GlyphButton =
             GlyphButton(this, g, null, text).also { b -> b.setOnClickListener { act(b) }; top.addView(b, lp(dpi(54), dpi(44)).apply { marginEnd = dpi(6) }) }
+        btnBack = gb(Glyph.BACK) { showTab(Tab.PADS) }
         btnAuto = gb(Glyph.AUTOPLAY) { toggleAutoPlay() }
         btnMetro = gb(Glyph.METRONOME) { engine.core.metronomeOn = !engine.core.metronomeOn; refreshTop(); saveSettings() }
         btnRec = gb(Glyph.RECORD) { toggleRecord() }.also { it.tint = T.RED }
@@ -207,20 +208,13 @@ class MainActivity : Activity() {
         btnLearn = gb(Glyph.LEARN) { toggleLearn() }
         btnMidi = gb(Glyph.MIDI) { showTab(Tab.MIDI) }
         val topScroll = HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false; addView(top) }
-        root.addView(topScroll, lp(MATCH, WRAP))
-        status = label("", 12.5f, T.MINT).apply { setPadding(dpi(12), 0, dpi(12), dpi(2)); setSingleLine() }
-        root.addView(status, lp(MATCH, WRAP))
+        val topBar = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
+        topBar.addView(topScroll, lp(0, WRAP, 1f))
+        val menuBtn = GlyphButton(this, Glyph.MENU).also { it.setOnClickListener { showMainMenu(this) } }
+        topBar.addView(menuBtn, lp(dpi(54), dpi(44)).apply { marginEnd = dpi(6) })
+        root.addView(topBar, lp(MATCH, WRAP))
         content = FrameLayout(this)
         root.addView(content, lp(MATCH, 0, 1f))
-        // bottom nav
-        val nav = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; setBackgroundColor(T.BG_DEEP) }
-        for (t in Tab.values()) {
-            val item = NavItem(this, t)
-            item.setOnClickListener { showTab(t) }
-            nav.addView(item, lp(0, dpi(54), 1f))
-            navItems += item
-        }
-        root.addView(nav, lp(MATCH, WRAP))
         showTab(Tab.PADS)
         refreshTop()
         return root
@@ -228,19 +222,19 @@ class MainActivity : Activity() {
 
     /** Applies one of the 8 color themes and rebuilds the screen. */
     fun applyColorTheme(i: Int) {
+        val cur = tab
         prefs.edit().putInt("theme", i).apply()
         T.apply(i)
         window.statusBarColor = T.BG_DEEP
         window.navigationBarColor = T.BG_DEEP
-        navItems.clear()
         setContentView(buildRoot())
         updateStatus()
-        showTab(Tab.MORE)
+        showTab(cur)
     }
 
     fun showTab(t: Tab) {
         tab = t
-        navItems.forEach { it.isOn = it.tab == t; it.invalidate() }
+        if (::btnBack.isInitialized) btnBack.visibility = if (t == Tab.PADS) View.GONE else View.VISIBLE
         content.removeAllViews()
         (padView.parent as? android.view.ViewGroup)?.removeView(padView)
         (kitView.parent as? android.view.ViewGroup)?.removeView(kitView)
@@ -439,7 +433,7 @@ class MainActivity : Activity() {
     fun updateStatus() {
         val names = midi.connectedNames
         val k = kit?.name ?: "—"
-        status.text = if (names.isEmpty()) "$appTitle   ·   Kit: $k" else "$appTitle   ·   Kit: $k   ·   MIDI conectado: ${names.joinToString()}"
+        statusText = if (names.isEmpty()) "Kit: $k" else "Kit: $k\nMIDI conectado: ${names.joinToString()}"
         btnMidi.badge = if (names.isEmpty()) null else T.MINT
     }
 
@@ -498,19 +492,4 @@ class MainActivity : Activity() {
     }
 
     companion object { const val REQ_SF2 = 11; const val REQ_BLE = 12 }
-
-    /** Bottom navigation item. */
-    class NavItem(ctx: MainActivity, val tab: Tab) : View(ctx) {
-        var isOn = false
-        private val p = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER; typeface = Typeface.create(Typeface.SERIF, Typeface.NORMAL) }
-        init { isClickable = true }
-        override fun onDraw(c: Canvas) {
-            if (isOn) { p.color = T.NAV_SEL; c.drawRoundRect(dp(4f), dp(3f), width - dp(4f), height - dp(3f), dp(16f), dp(16f), p) }
-            val col = if (isOn) T.CYAN else T.TEXT2
-            IconPainter.glyph(c, tab.glyph, width / 2f, height * 0.38f, height * 0.42f, col)
-            p.color = col; p.textSize = dp(11.5f)
-            c.drawText(tab.title, width / 2f, height - dp(6f), p)
-        }
-    }
-
 }

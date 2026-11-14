@@ -57,17 +57,31 @@ private fun <V> Context.chips(items: List<V>, selected: V, name: (V) -> String, 
 }
 
 // ---------------- PADS ----------------
-fun buildPadsPanel(a: MainActivity): View {
-    val box = a.vbox()
-    val bar = a.hbox(4)
-    bar.addView(a.label(a.kit?.name ?: "", 14f, T.TEXT2).apply { setSingleLine() }, lp(0, WRAP, 1f))
-    bar.addView(a.button("+ Fila", sizeSp = 13f) { a.addRow() }); bar.gap(6)
-    bar.addView(a.button("− Fila", sizeSp = 13f) { a.removeRow() }); bar.gap(6)
-    bar.addView(a.button("Reverb", sizeSp = 13f) { showQuickReverb(a) }); bar.gap(6)
-    bar.addView(a.button("Kits", sizeSp = 13f) { a.showTab(MainActivity.Tab.KITS) })
-    box.addView(bar, lp(MATCH, WRAP))
-    box.addView(a.padView, lp(MATCH, 0, 1f))
-    return box
+fun buildPadsPanel(a: MainActivity): View = a.padView
+
+/** Hamburger menu: screens, pad rows, quick reverb and the color theme selector. */
+fun showMainMenu(a: MainActivity) {
+    val v = a.vbox(2)
+    lateinit var d: android.app.Dialog
+    v.addView(a.label(a.statusText, 13f, T.MINT))
+    v.addView(a.section("Pantallas"))
+    val g = GridLayout(a); g.columnCount = 2
+    for (t in MainActivity.Tab.values()) {
+        val b = a.button(t.title, t == a.tab) { d.dismiss(); a.showTab(t) }
+        g.addView(b, GridLayout.LayoutParams().apply { setMargins(a.dpi(3), a.dpi(3), a.dpi(3), a.dpi(3)); width = 0; columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f) })
+    }
+    v.addView(g, lp(MATCH, WRAP))
+    v.addView(a.section("Pads"))
+    val r = GridLayout(a); r.columnCount = 3
+    fun act(text: String, f: () -> Unit) = r.addView(a.button(text, sizeSp = 14f) { d.dismiss(); f() },
+        GridLayout.LayoutParams().apply { setMargins(a.dpi(3), a.dpi(3), a.dpi(3), a.dpi(3)); width = 0; columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f) })
+    act("+ Fila") { a.addRow() }
+    act("− Fila") { a.removeRow() }
+    act("Reverb") { showQuickReverb(a) }
+    v.addView(r, lp(MATCH, WRAP))
+    v.addView(a.section("Tema de color"))
+    v.addView(a.chips(THEMES.indices.toList(), T.index, { THEMES[it].name }) { d.dismiss(); a.applyColorTheme(it) })
+    d = a.panelDialog("Drum Live Pro v${a.versionName}", v, widthFraction = 0.85f)
 }
 
 fun showQuickReverb(a: MainActivity) {
