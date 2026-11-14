@@ -4,7 +4,6 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.exp
 import kotlin.math.sin
-import kotlin.math.tanh
 
 /** User-facing FX parameters (all read by the audio thread every block). */
 class FxParams {
@@ -28,6 +27,13 @@ class FxParams {
     fun resetDist() { distBand = 2400f; distLowPass = 8000f; distIntensity = 0.15f }
     fun resetRev() { revTime = 935f; revHighFreq = 0.338f; revMix = 0.25f }
     fun resetEcho() { echoDelay = 350f; echoFeedback = 0.15f; echoMix = 0.2f }
+}
+
+/** Cheap tanh-like soft clipper (no transcendental calls). */
+fun fastTanh(x: Float): Float {
+    val v = if (x > 3f) 3f else if (x < -3f) -3f else x
+    val v2 = v * v
+    return v * (27f + v2) / (27f + 9f * v2)
 }
 
 class Biquad {
@@ -55,12 +61,12 @@ class Distortion(private val fs: Float) {
         if (p.distBand != lastBand) { lastBand = p.distBand; bpL.bandPass(fs, lastBand, 0.8f); bpR.bandPass(fs, lastBand, 0.8f) }
         if (p.distLowPass != lastLp) { lastLp = p.distLowPass; lpL.lowPass(fs, lastLp); lpR.lowPass(fs, lastLp) }
         val drive = 1f + p.distIntensity * 60f
-        val makeup = 1f / tanh(drive * 0.5f).coerceAtLeast(0.2f) * 0.5f
+        val makeup = 1f / fastTanh(drive * 0.5f).coerceAtLeast(0.2f) * 0.5f
         for (i in 0 until n) {
             val xl = l[i] + bpL.process(l[i]) * p.distIntensity * 2f
             val xr = r[i] + bpR.process(r[i]) * p.distIntensity * 2f
-            l[i] = lpL.process(tanh(xl * drive) * makeup)
-            r[i] = lpR.process(tanh(xr * drive) * makeup)
+            l[i] = lpL.process(fastTanh(xl * drive) * makeup)
+            r[i] = lpR.process(fastTanh(xr * drive) * makeup)
         }
     }
 }
@@ -94,10 +100,10 @@ class Reverb(fs: Float) {
     private class AllPass(n: Int) { val buf = FloatArray(n); var i = 0
         fun p(x: Float): Float { val b = buf[i]; val o = -x + b; buf[i] = x + b * 0.5f; if (++i >= buf.size) i = 0; return o } }
     private val sc = fs / 44100f
-    private val combL = intArrayOf(1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617).map { Comb((it * sc).toInt()) }
-    private val combR = intArrayOf(1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617).map { Comb(((it + 23) * sc).toInt()) }
-    private val apL = intArrayOf(556, 441, 341, 225).map { AllPass((it * sc).toInt()) }
-    private val apR = intArrayOf(556, 441, 341, 225).map { AllPass(((it + 23) * sc).toInt()) }
+    private val combL = intArrayOf(1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617).map { Comb((it * sc).toInt()) }.toTypedArray()
+    private val combR = intArrayOf(1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617).map { Comb(((it + 23) * sc).toInt()) }.toTypedArray()
+    private val apL = intArrayOf(556, 441, 341, 225).map { AllPass((it * sc).toInt()) }.toTypedArray()
+    private val apR = intArrayOf(556, 441, 341, 225).map { AllPass(((it + 23) * sc).toInt()) }.toTypedArray()
     fun process(l: FloatArray, r: FloatArray, n: Int, p: FxParams) {
         // map time (100..5000 ms) to feedback 0.70..0.985
         val t = ((p.revTime - 100f) / 4900f).coerceIn(0f, 1f)
@@ -125,8 +131,8 @@ class SoftLimiter {
             val pk = maxOf(kotlin.math.abs(l[i]), kotlin.math.abs(r[i]))
             val target = if (pk > 0.95f) 0.95f / pk else 1f
             env = if (target < env) target else env + (target - env) * 0.0008f
-            l[i] = tanh(l[i] * env)
-            r[i] = tanh(r[i] * env)
+            l[i] = fastTanh(l[i] * env)
+            r[i] = fastTanh(r[i] * env)
         }
     }
 }

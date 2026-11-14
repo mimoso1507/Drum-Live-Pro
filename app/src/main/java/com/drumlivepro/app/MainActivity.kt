@@ -112,6 +112,7 @@ class MainActivity : Activity() {
         kits = KitStore(this, sfm)
         recs = RecordingStore(this)
         engine = AudioEngine(this, fx)
+        engine.bufferMultiplier = prefs.getInt("bufMul", 2)
         midi = MidiInput(this)
         loadSettings()
 

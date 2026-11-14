@@ -354,6 +354,12 @@ fun buildMorePanel(a: MainActivity): View {
     box.addView(a.button("Reasignar íconos y notas automáticamente") {
         a.kit?.let { k -> k.pads.forEach { it.icon = null; it.name = null }; a.applyPads(true); a.toast("Íconos automáticos según la nota MIDI") }
     }, lp(WRAP, WRAP).apply { topMargin = a.dpi(6) })
+    box.addView(a.section("Latencia de audio"))
+    box.addView(a.label("Mínimo = menos retraso al tocar; si se corta o suena entrecortado, sube a Normal o Seguro.", 12.5f, T.TEXT2))
+    box.addView(a.chips(listOf(1, 2, 4), a.engine.bufferMultiplier, { when (it) { 1 -> "Mínimo"; 2 -> "Normal"; else -> "Seguro" } }) {
+        a.prefs.edit().putInt("bufMul", it).apply(); a.engine.bufferMultiplier = it; a.engine.restart()
+        a.toast("Buffer de audio: ${a.engine.latencyMs} ms")
+    })
     box.addView(a.section("Información"))
     box.addView(a.label("Latencia de salida aprox.: ${a.engine.latencyMs} ms · ${a.engine.sampleRate} Hz", 13.5f, T.TEXT2))
     box.addView(a.label("${a.appTitle} · Kits incluidos basados en GeneralUser GS v2 de S. Christian Collins (uso libre).", 13f, T.TEXT2))

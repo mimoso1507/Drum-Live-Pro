@@ -79,6 +79,7 @@ class EngineCore(val fs: Int, val fx: FxParams) {
     var onRecorded: ((NoteEvent) -> Unit)? = null
 
     private val inbox = ConcurrentLinkedQueue<IntArray>()
+    private val regionCache = HashMap<Long, List<Region>>()
 
     // metronome click
     private var clickLeft = 0; private var clickPhase = 0.0; private var clickFreq = 1000.0; private var clickAmp = 0f; private var clickDelay = 0; private var clickLen = 0
@@ -141,8 +142,10 @@ class EngineCore(val fs: Int, val fx: FxParams) {
         val ps = pads.getOrNull(pad) ?: return
         val sf = ps.sf ?: return
         hitTimes.set(pad, System.nanoTime())
-        val regions = sf.regions(ps.presetIndex, ps.note, vel.coerceIn(1, 127))
+        val vv = vel.coerceIn(1, 127)
         val sfKey = System.identityHashCode(sf) * 31 + ps.presetIndex
+        val ck = (System.identityHashCode(sf).toLong() shl 32) or (ps.presetIndex.toLong() shl 16) or (ps.note.toLong() shl 8) or vv.toLong()
+        val regions = regionCache[ck] ?: sf.regions(ps.presetIndex, ps.note, vv).also { if (regionCache.size > 6000) regionCache.clear(); regionCache[ck] = it }
         for (r in regions) {
             if (r.exclusiveClass != 0) for (v in voices) if (v.active && v.excl == r.exclusiveClass && v.sfKey == sfKey && v.stage != 3) {
                 v.stage = 3; v.relCoef = exp(-6.9f / (0.012f * fs))
@@ -178,8 +181,13 @@ class EngineCore(val fs: Int, val fx: FxParams) {
     }
 
     private fun allocVoice(): Voice {
-        voices.firstOrNull { !it.active }?.let { return it }
-        return voices.filter { it.stage == 3 }.minByOrNull { it.age } ?: voices.minByOrNull { it.age }!!
+        var best: Voice? = null; var bestRel: Voice? = null
+        for (v in voices) {
+            if (!v.active) return v
+            if (v.stage == 3 && (bestRel == null || v.age < bestRel.age)) bestRel = v
+            if (best == null || v.age < best.age) best = v
+        }
+        return bestRel ?: best!!
     }
 
     private fun scheduleClick(offset: Int, accent: Int) {
@@ -292,7 +300,7 @@ class EngineCore(val fs: Int, val fx: FxParams) {
             when (v.stage) {
                 0 -> { v.env += v.attackInc; if (v.env >= 1f) { v.env = 1f; v.stage = 1 } }
                 1 -> { if (v.holdLeft-- <= 0) v.stage = 2 }
-                2 -> { v.env = v.sustain + (v.env - v.sustain) * v.decayCoef }
+                2 -> { v.env = v.sustain + (v.env - v.sustain) * v.decayCoef; if (v.env < 0.0003f) { v.active = false; return } }
                 3 -> { v.env *= v.relCoef; if (v.env < 0.0003f) { v.active = false; return } }
             }
             if (v.autoRelease != Int.MAX_VALUE && --v.autoRelease <= 0 && v.stage != 3) { v.stage = 3; v.autoRelease = Int.MAX_VALUE }
@@ -300,7 +308,7 @@ class EngineCore(val fs: Int, val fx: FxParams) {
             if (ip >= v.end - 1) { v.active = false; return }
             val fr = (v.pos - ip).toFloat()
             var s = (d[ip] + (d[ip + 1] - d[ip]) * fr) / 32768f
-            v.lpL += (s - v.lpL) * v.lpA; s = v.lpL
+            if (v.lpA < 1f) { v.lpL += (s - v.lpL) * v.lpA; s = v.lpL }
             s *= v.env
             l[i] += s * v.gl; r[i] += s * v.gr
             v.pos += v.step
@@ -312,6 +320,8 @@ class EngineCore(val fs: Int, val fx: FxParams) {
 
 /** Real-time output through a low latency AudioTrack. */
 class AudioEngine(ctx: Context, fx: FxParams) {
+    /** 1 = smallest buffer (lowest latency), 2 = normal, 4 = safe. */
+    @Volatile var bufferMultiplier = 2
     val sampleRate: Int
     private val burst: Int
     val core: EngineCore
@@ -338,7 +348,9 @@ class AudioEngine(ctx: Context, fx: FxParams) {
             .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
             .setBufferSizeInBytes(maxOf(minBytes, burst * 8 * 2))
             .build()
-        runCatching { t.bufferSizeInFrames = burst * 2 }
+        val target = burst * bufferMultiplier.coerceIn(1, 8)
+        runCatching { t.bufferSizeInFrames = target }
+        val maxFrames = maxOf(target * 3, burst * 6)
         track = t
         alive = true
         t.play()
@@ -353,11 +365,13 @@ class AudioEngine(ctx: Context, fx: FxParams) {
                 val u = t.underrunCount
                 if (u > underruns) { // grow the buffer if the device glitches
                     underruns = u
-                    runCatching { if (t.bufferSizeInFrames + burst <= t.bufferCapacityInFrames) t.bufferSizeInFrames = t.bufferSizeInFrames + burst }
+                    runCatching { if (t.bufferSizeInFrames + burst <= minOf(t.bufferCapacityInFrames, maxFrames)) t.bufferSizeInFrames = t.bufferSizeInFrames + burst }
                 }
             }
         }, "DrumAudio").also { it.start() }
     }
+
+    fun restart() { stop(); start() }
 
     fun stop() {
         alive = false

@@ -46,6 +46,20 @@ class PadGridView(ctx: Context) : View(ctx) {
         out.set(gap + col * cw, gap + row * ch, (col + 1) * cw, (row + 1) * ch)
     }
 
+    private var shaders: Array<LinearGradient?> = arrayOfNulls(0)
+    private var shaderKey = 0L
+    private val rect2 = RectF()
+
+    /** Vertical pad gradient, cached per row (rebuilt only when size, rows or theme change). */
+    private fun rowShader(row: Int): LinearGradient {
+        val key = (width.toLong() shl 40) xor (height.toLong() shl 20) xor (rows.toLong() shl 8) xor T.index.toLong()
+        if (key != shaderKey || shaders.size != rows) { shaderKey = key; shaders = arrayOfNulls(rows) }
+        return shaders[row] ?: run {
+            padRect(row * columns, rect2)
+            LinearGradient(0f, rect2.top, 0f, rect2.bottom, T.PAD_TOP, T.PAD, Shader.TileMode.CLAMP).also { shaders[row] = it }
+        }
+    }
+
     private fun padAt(x: Float, y: Float): Int {
         for (i in pads.indices) { padRect(i, rect); if (rect.contains(x, y)) return i }
         return -1
@@ -64,9 +78,8 @@ class PadGridView(ctx: Context) : View(ctx) {
             val r = dp(14f)
             // body
             paint.style = Paint.Style.FILL
-            paint.shader = LinearGradient(0f, rect.top, 0f, rect.bottom, blend(T.PAD_TOP, T.PAD_HIT, flash), blend(T.PAD, T.PAD_HIT, flash * 0.7f), Shader.TileMode.CLAMP)
-            c.drawRoundRect(rect, r, r, paint)
-            paint.shader = null
+            if (flash > 0f) { paint.color = blend(T.PAD, T.PAD_HIT, flash); c.drawRoundRect(rect, r, r, paint) }
+            else { paint.shader = rowShader(i / columns); c.drawRoundRect(rect, r, r, paint); paint.shader = null }
             // border
             paint.style = Paint.Style.STROKE
             val learnSel = learnPad == i
@@ -130,8 +143,8 @@ class PadGridView(ctx: Context) : View(ctx) {
                     pointerPad[e.getPointerId(idx)] = pad
                     var vel = 112
                     if (velocityByPosition) { padRect(pad, rect); vel = (127 - ((y - rect.top) / rect.height()) * 87).toInt().coerceIn(30, 127) }
-                    flash(pad)
                     onHit?.invoke(pad, vel)
+                    flash(pad)
                     if (e.actionMasked == MotionEvent.ACTION_DOWN) {
                         longFired = false
                         longRunnable?.let { handler2.removeCallbacks(it) }
