@@ -1,6 +1,7 @@
 package com.drumlivepro.app.model
 
-import android.content.Context
+// Shared by the Android app and the Windows (desktop) app: no Android imports here.
+
 import com.drumlivepro.app.audio.SoundFontManager
 import org.json.JSONArray
 import org.json.JSONObject
@@ -74,8 +75,8 @@ val KIT_COLORS = intArrayOf(
 )
 
 /** Persists kits. Built-in kits come from SF2 presets; their pad layout edits are stored as overrides. */
-class KitStore(ctx: Context, private val sfm: SoundFontManager) {
-    private val dir = File(ctx.filesDir, "kits").apply { mkdirs() }
+class KitStore(baseDir: File, private val sfm: SoundFontManager) {
+    private val dir = File(baseDir, "kits").apply { mkdirs() }
 
     private fun fileFor(id: String) = File(dir, id.replace(Regex("[^A-Za-z0-9._-]"), "_") + ".json")
 

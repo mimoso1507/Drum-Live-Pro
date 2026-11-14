@@ -111,7 +111,7 @@ class MainActivity : Activity() {
         window.statusBarColor = T.BG_DEEP
         window.navigationBarColor = T.BG_DEEP
         sfm = SoundFontManager(this)
-        kits = KitStore(this, sfm)
+        kits = KitStore(filesDir, sfm)
         recs = RecordingStore(this)
         engine = AudioEngine(this, fx)
         engine.bufferMultiplier = prefs.getInt("bufMul", 2)
