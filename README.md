@@ -14,7 +14,7 @@ App de batería con pads para Android (nativa, Kotlin). Próximas versiones: Win
 - **MIDI USB y Bluetooth LE** con botón **Aprender**: pulsa Aprender, toca un pad y golpea la tecla del controlador.
 
 ## Compilar
-El APK se compila automáticamente con GitHub Actions en cada push a `main` (pestaña *Actions* o la release `latest`).
+El APK se compila automáticamente con GitHub Actions en cada push a `main` (pestaña *Actions* o la última release (el archivo se llama `Drum-Live-Pro-vX.Y.apk`)).
 Localmente: `./gradlew assembleDebug` (Android SDK 35, JDK 17).
 
 ## Créditos

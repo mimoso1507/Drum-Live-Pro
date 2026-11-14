@@ -19,22 +19,30 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
+      - name: Read version
+        id: ver
+        run: echo "ver=$(grep -oP 'versionName = "\K[^"]+' app/build.gradle.kts)" >> "$GITHUB_OUTPUT"
       - name: Build APK
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon assembleDebug
           mkdir -p out
-          cp app/build/outputs/apk/debug/app-debug.apk out/Drum-Live-Pro.apk
+          cp app/build/outputs/apk/debug/app-debug.apk "out/Drum-Live-Pro-v${{ steps.ver.outputs.ver }}.apk"
       - uses: actions/upload-artifact@v4
         with:
-          name: Drum-Live-Pro.apk
-          path: out/Drum-Live-Pro.apk
-      - name: Publish "latest" release
+          name: Drum-Live-Pro-v${{ steps.ver.outputs.ver }}
+          path: out/Drum-Live-Pro-v${{ steps.ver.outputs.ver }}.apk
+      - name: Remove old unversioned "latest" release
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release delete latest --cleanup-tag -y --repo "${{ github.repository }}" || true
+      - name: Publish release for this version
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: latest
-          name: Drum Live Pro (última versión)
-          prerelease: true
-          files: out/Drum-Live-Pro.apk
-          body: APK de prueba generado automáticamente desde main. Instálalo en Android 8.0 o superior.
+          tag_name: v${{ steps.ver.outputs.ver }}
+          name: Drum Live Pro v${{ steps.ver.outputs.ver }}
+          make_latest: true
+          files: out/Drum-Live-Pro-v${{ steps.ver.outputs.ver }}.apk
+          body: APK de Drum Live Pro v${{ steps.ver.outputs.ver }} generado automáticamente. Instálalo en Android 8.0 o superior.
