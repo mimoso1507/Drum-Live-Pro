@@ -17,6 +17,8 @@ import android.os.Looper
 import android.provider.OpenableColumns
 import android.view.Gravity
 import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
@@ -130,6 +132,7 @@ class MainActivity : Activity() {
             onLongPress = { p -> showPadEditor(this@MainActivity, p) }
         }
         setContentView(buildRoot())
+        applySystemBars()
         engine.core.onRecorded = null
         midi.onNote = { n, v, _ -> onMidiNote(n, v) }
         midi.onDevicesChanged = { updateStatus(); if (tab == Tab.MIDI) showTab(Tab.MIDI) }
@@ -147,7 +150,45 @@ class MainActivity : Activity() {
     override fun onStart() { super.onStart(); engine.start() }
     override fun onStop() { super.onStop(); saveSettings(); if (!engine.core.running) engine.stop() }
     override fun onDestroy() { super.onDestroy(); engine.stop(); midi.stop(); bg.shutdown() }
-    override fun onConfigurationChanged(newConfig: Configuration) { super.onConfigurationChanged(newConfig); showTab(tab) }
+    override fun onConfigurationChanged(newConfig: Configuration) { super.onConfigurationChanged(newConfig); applySystemBars(); showTab(tab) }
+    override fun onWindowFocusChanged(hasFocus: Boolean) { super.onWindowFocusChanged(hasFocus); if (hasFocus) applySystemBars() }
+
+    private val isLandscape get() = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    /** Landscape: hide the status (notification) bar so the app uses that space. Portrait: show it. */
+    @Suppress("DEPRECATION")
+    fun applySystemBars() {
+        val land = isLandscape
+        if (Build.VERSION.SDK_INT >= 30) {
+            window.setDecorFitsSystemWindows(false)
+            val c = window.insetsController ?: return
+            if (land) {
+                c.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                c.hide(WindowInsets.Type.statusBars())
+            } else c.show(WindowInsets.Type.statusBars())
+            window.decorView.requestApplyInsets()
+        } else {
+            val d = window.decorView
+            if (land) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+                d.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            } else {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+                d.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+            }
+        }
+    }
+
+    /** On Android 11+ the app draws edge-to-edge, so keep the UI clear of visible bars and the camera cutout. */
+    private fun fitInsets(root: View) {
+        if (Build.VERSION.SDK_INT < 30) return
+        root.setOnApplyWindowInsetsListener { v, ins ->
+            val b = ins.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+            v.setPadding(b.left, b.top, b.right, b.bottom)
+            ins
+        }
+        root.requestApplyInsets()
+    }
 
     // ---------------- settings ----------------
     private fun loadSettings() {
@@ -188,6 +229,7 @@ class MainActivity : Activity() {
     private fun buildRoot(): View {
         val root = vbox()
         root.setBackgroundColor(T.BG)
+        fitInsets(root)
         // top bar
         val top = hbox(6)
         fun gb(g: Glyph? = null, text: String? = null, act: (GlyphButton) -> Unit): GlyphButton =
@@ -228,6 +270,7 @@ class MainActivity : Activity() {
         window.statusBarColor = T.BG_DEEP
         window.navigationBarColor = T.BG_DEEP
         setContentView(buildRoot())
+        applySystemBars()
         updateStatus()
         showTab(cur)
     }
